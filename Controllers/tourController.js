@@ -17,7 +17,7 @@ exports.createNewTour = (req, res) => {
     const newId = tours[tours.length - 1].id + 1;
     const newTour = Object.assign({ id: newId, ...req.body });
     const newTours = [...tours, newTour];
-    fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(newTours), (err) => {
+    fs.writeFile(`${__dirname}/../dev-data/data/tours-simple.json`, JSON.stringify(newTours), (err) => {
         res.status(201).json({
             status: 'Success',
             data: {
