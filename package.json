@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon server.js",
-    "start:prod": "NODE_ENV=production nodemon server.js"
+    "start:prod": "NODE_ENV=production nodemon server.js",
+    "debug": "ndb server.js"
   },
   "author": "d3vilksk",
   "license": "ISC",
@@ -23,7 +24,9 @@
     "express": "^4.17.1",
     "mongoose": "^5.10.12",
     "morgan": "^1.10.0",
-    "prettier": "^2.1.2"
+    "prettier": "^2.1.2",
+    "slugify": "^1.4.6",
+    "validator": "^13.1.17"
   },
   "engines": {
     "node": ">=10.0.0"
