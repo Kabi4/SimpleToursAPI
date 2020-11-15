@@ -28,5 +28,5 @@ app.all('*', (req, res, next) => {
 app.use(ErrorController);
 
 module.exports = app;
-//mongodb+srv://kushagra:<password>@cluster0.mbkua.mongodb.net/test
+//mongodb+srv://kushagra:<password>@cluster0.mbkua.mongodb.net/test 
 //mongo "mongodb+srv://cluster0.mbkua.mongodb.net/<dbname>" --username kushagra
