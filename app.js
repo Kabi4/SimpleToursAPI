@@ -5,7 +5,7 @@ const toursRouter = require('./Routes/TourRouter');
 const usersRouter = require('./Routes/UserRouter');
 const AppError = require('./Utils/AppError');
 const ErrorController = require('./Controllers/ErrorController');
-
+ 
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
