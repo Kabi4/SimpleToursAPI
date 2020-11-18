@@ -130,7 +130,7 @@ exports.deteleTour = catchAsync(async (req, res, next) => {
     if (!tour) {
         next(new AppError(`No tour find for id ${req.params.id}`, 404));
     }
-    res.status(200).json({
+    res.status(204).json({
         status: 'Success',
         message: 'Deletion Successful',
     });

@@ -43,6 +43,10 @@ const handleValidationError = (err) => {
     return new AppError(message, 400);
 };
 
+const handlerJWTERROR = (err) => new AppError('Invalid Token Thrown', 401);
+
+const handlerExpiredError = (err) => new AppError('Token expired error', 401);
+
 const ErrorControler = (err, req, res, next) => {
     console.log(err.stack);
     // console.log('Checking error');
@@ -54,7 +58,9 @@ const ErrorControler = (err, req, res, next) => {
         let error = { ...err };
         if (error.name === 'CastError') error = handlerCastError(error);
         if (error.code === 11000) error = handleDuplicateField(error);
-        if ((error.name = 'ValidationError')) error = handleValidationError(error);
+        if (error.name === 'ValidationError') error = handleValidationError(error);
+        if (error.name === 'JsonWebTokenError') error = handlerJWTERROR(error);
+        if (error.name === 'TokenExpiredError') error = handlerExpiredError(error);
         sendProdError(error, res);
     }
     // res.status(err.statusCode).json({
