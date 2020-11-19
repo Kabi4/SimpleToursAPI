@@ -12,6 +12,24 @@ const signToken = async (id) => {
     });
 };
 
+const sendToken = catchAsync(async (user, statusCode, res) => {
+    const token = await signToken(user._id);
+    user.password = undefined;
+    const cookieOptions = {
+        expires: new Date(Date.now() + 60 * 60 * 24 * 1000 * process.env.JWT_EXPIRES_IN.replace('d', '')),
+        httpOnly: true,
+    };
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+    res.cookie('jwt', token, cookieOptions);
+    res.status(statusCode).json({
+        status: 'success',
+        token,
+        data: {
+            user: user,
+        },
+    });
+});
+
 exports.signup = catchAsync(async (req, res, next) => {
     const newUser = await User.create({
         name: req.body.name,
@@ -19,14 +37,8 @@ exports.signup = catchAsync(async (req, res, next) => {
         password: req.body.password,
         confirmPassword: req.body.confirmPassword,
     });
-    const token = await signToken(newUser._id);
-    res.status(201).json({
-        status: 'success',
-        token,
-        data: {
-            user: newUser,
-        },
-    });
+
+    sendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -40,12 +52,7 @@ exports.login = catchAsync(async (req, res, next) => {
         return next(new AppError('Invalid email or password', 401));
     }
 
-    const token = await signToken(user._id);
-
-    res.status(200).json({
-        status: 'success',
-        token: token,
-    });
+    sendToken(user, 201, res);
 });
 
 exports.verifyToken = catchAsync(async (req, res, next) => {
@@ -69,6 +76,7 @@ exports.verifyToken = catchAsync(async (req, res, next) => {
     }
 
     req.user = ConsumerUser;
+
     next();
 });
 
@@ -125,12 +133,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     user.resetTokenExpires = undefined;
     await user.save();
 
-    const token = await signToken(user._id);
-
-    res.status(200).json({
-        status: 'success',
-        token: token,
-    });
+    sendToken(user, 201, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -144,10 +147,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     user.password = req.body.newPassword;
     user.confirmPassword = req.body.confirmPassword;
     await user.save();
-    const token = await signToken(user._id);
-
-    res.status(200).json({
-        status: 'success',
-        token: token,
-    });
+    sendToken(user, 201, res);
 });
