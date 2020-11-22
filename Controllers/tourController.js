@@ -82,7 +82,11 @@ exports.createNewTour = catchAsync(async (req, res, next) => {
 
 exports.getATour = catchAsync(async (req, res, next) => {
     // try {
-    const tour = await Tour.findById(req.params.id);
+    const tour = await await Tour.findById(req.params.id).populate('reviews');
+    // .populated({
+    //     path: 'guides',
+    //     select: '-__v -lastPasswordChange',
+    // });
     if (!tour) {
         return next(new AppError(`No tour find for id ${req.params.id}`, 404));
     }

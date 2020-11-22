@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+// const User = require('./userModel');
 //const Validator = require('validator');
 const toursSchema = new mongoose.Schema(
     {
@@ -75,6 +76,32 @@ const toursSchema = new mongoose.Schema(
             select: false,
         },
         startDates: [Date],
+
+        startLocation: {
+            type: {
+                type: String,
+                default: 'Point',
+                enum: ['Point'],
+            },
+            coordinates: [Number],
+            address: String,
+            description: String,
+        },
+        locations: [
+            {
+                type: {
+                    type: String,
+                    default: 'Point',
+                    enum: ['Point'],
+                },
+                coordinates: [Number],
+                address: String,
+                description: String,
+                day: Number,
+            },
+        ],
+        guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+        reviews: [{type: mongoose.Schema.ObjectId,ref: "Reviews"}]
     },
     {
         toJSON: { virtuals: true },
@@ -91,10 +118,22 @@ toursSchema.virtual('durationWeeks').get(function () {
     return `${parseInt(this.duration / 7)} week ${parseInt(gapAlter * 7 + 0.01)} days`;
 });
 
+toursSchema.virtual('reviews',{
+    ref: "Reviews",
+    foreignField: "Tour",
+    localField: "_id"
+})
+
 toursSchema.pre('save', function (next) {
     this.slug = slugify(this.name, { lower: true });
     next();
 });
+
+// toursSchema.pre('save',function(next){
+//     const guidesPromises = this.guides.map(async id=>await User.findById(id))
+//     this.guides = await Promise.all(guidesPromises);
+//     next();
+// })
 
 // toursSchema.pre("save",function(next){
 //     console.log("We can have multiple same documents middleware")
@@ -113,6 +152,14 @@ toursSchema.pre('save', function (next) {
 //     this.find({ vipTour: { $ne: true } });
 //     next();
 // });
+
+toursSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'guides',
+        select: '-__v -lastPasswordChange',
+    });
+    next();
+});
 
 toursSchema.pre(/^find/, function (next) {
     this.find({ vipTour: { $ne: true } });

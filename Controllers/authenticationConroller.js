@@ -84,7 +84,6 @@ exports.verificationAdmin = (...args) => {
     return (req, res, next) => {
         const role = req.user.role;
         const index = args.find((ele) => ele === role);
-        console.log(index);
         if (index === -1 || index === undefined) {
             return next(new AppError('You dont have permission to make this action', 403));
         } else {

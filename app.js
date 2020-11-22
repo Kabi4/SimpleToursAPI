@@ -2,13 +2,15 @@ const express = require('express');
 const app = express();
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-const toursRouter = require('./Routes/TourRouter');
-const usersRouter = require('./Routes/UserRouter');
-const AppError = require('./Utils/AppError');
-const ErrorController = require('./Controllers/ErrorController');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+
+const ErrorController = require('./Controllers/ErrorController');
+const usersRouter = require('./Routes/UserRouter');
+const AppError = require('./Utils/AppError');
+const reviewRouter = require('./Routes/ReviewRouter');
+const toursRouter = require('./Routes/TourRouter');
 
 app.use(helmet());
 
@@ -36,6 +38,8 @@ app.use(
 app.use('/api/v1/tours', toursRouter);
 
 app.use('/api/v1/users', usersRouter);
+
+app.use('/api/v1/review', reviewRouter);
 
 app.all('*', (req, res, next) => {
     // res.status(404).json({
