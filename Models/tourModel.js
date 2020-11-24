@@ -76,7 +76,6 @@ const toursSchema = new mongoose.Schema(
             select: false,
         },
         startDates: [Date],
-
         startLocation: {
             type: {
                 type: String,
@@ -101,7 +100,7 @@ const toursSchema = new mongoose.Schema(
             },
         ],
         guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-        reviews: [{type: mongoose.Schema.ObjectId,ref: "Reviews"}]
+        // reviews: [{ type: mongoose.Schema.ObjectId, ref: 'Reviews' }],
     },
     {
         toJSON: { virtuals: true },
@@ -118,11 +117,11 @@ toursSchema.virtual('durationWeeks').get(function () {
     return `${parseInt(this.duration / 7)} week ${parseInt(gapAlter * 7 + 0.01)} days`;
 });
 
-toursSchema.virtual('reviews',{
-    ref: "Reviews",
-    foreignField: "Tour",
-    localField: "_id"
-})
+toursSchema.virtual('reviews', {
+    ref: 'Reviews',
+    foreignField: 'Tour',
+    localField: '_id',
+});
 
 toursSchema.pre('save', function (next) {
     this.slug = slugify(this.name, { lower: true });

@@ -1,9 +1,9 @@
-const fs = require('fs');
+// const fs = require('fs');
 const User = require('../Models/userModel');
 const AppError = require('../Utils/AppError');
 const catchAsync = require('../Utils/catchAsync');
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
-
+// const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
+const factory = require('./handlerFactory');
 const filterUser = (user, ...args) => {
     let newUser = {};
     args.forEach((ele) => {
@@ -14,16 +14,7 @@ const filterUser = (user, ...args) => {
     return newUser;
 };
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-    const users = await User.find().select('-__v'); //Operate Query
-    res.status(200).json({
-        status: 'Success',
-        results: users.length,
-        data: {
-            users: users,
-        },
-    });
-});
+exports.getAllUsers = factory.getAll(User);
 
 exports.updateUser = catchAsync(async (req, res, next) => {
     if (req.body.password || req.body.confirmPassword) {
@@ -43,10 +34,13 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.deleteUser = catchAsync(async (req, res, next) => {
-    console.log('DOing');
-    await User.findByIdAndUpdate(req.user.id, { active: false });
-    res.status(200).json({
-        status: 'success',
-    });
-});
+exports.deleteUser = factory.deleteOne(User);
+// catchAsync(async (req, res, next) => {
+//     console.log('DOing');
+//     await User.findByIdAndUpdate(req.user.id, { active: false });
+//     res.status(200).json({
+//         status: 'success',
+//     });
+// });
+
+exports.getMe = factory.getOne(User);
