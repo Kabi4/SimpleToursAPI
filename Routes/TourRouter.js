@@ -13,12 +13,19 @@ router.route('/app-stats').get(tourController.appStats);
 
 router.route('/yearly-stats/:year').get(tourController.yearlyStats);
 
-router.route('/').get(verifyToken, tourController.getAllTour).post(tourController.createNewTour);
+router.route('/tours-within/:distance/center/:latlng/unit/:unit').get(tourController.toursWithin);
+
+//tours-within?distance=233&center=-40,-45&unit-mi
+
+router
+    .route('/')
+    .get(verifyToken, tourController.getAllTour)
+    .post(verifyToken, verificationAdmin('admin', 'lead-guide'), tourController.createNewTour);
 // router.route('/:tourid/review').post(verifyToken, reviewController.postAReview);
 router
     .route('/:id')
     .get(tourController.getATour)
-    .patch(tourController.updateATour)
+    .patch(verifyToken, verificationAdmin('admin', 'lead-guide'), tourController.updateATour)
     .delete(verifyToken, verificationAdmin('admin', 'lead-guide'), tourController.deteleTour);
 
 module.exports = router;

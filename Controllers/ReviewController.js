@@ -9,13 +9,13 @@ exports.getAllReviews = factory.getAll(Review);
 
 exports.putParams = (req, res, next) => {
     if (req.params.tourid) {
-        req.body.Tour = req.params.tourid;
+        req.body.tour = req.params.tourid;
     }
     // if (!req.body.tour) {
     //     return next(new AppError('No Tour mentioned', 404));
     // }
     if (req.user.id) {
-        req.body.User = req.user.id;
+        req.body.user = req.user.id;
     }
     next();
 };
