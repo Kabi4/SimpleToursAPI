@@ -9,7 +9,7 @@ process.on('uncaughtException', (err) => {
 
 const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
 
-mongoose
+mongoose 
     .connect(DB, {
         useNewUrlParser: true,
         useCreateIndex: true,
