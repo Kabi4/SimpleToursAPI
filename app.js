@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const path = require('path');
 
 const ErrorController = require('./Controllers/ErrorController');
 const usersRouter = require('./Routes/UserRouter');
@@ -12,10 +13,13 @@ const AppError = require('./Utils/AppError');
 const reviewRouter = require('./Routes/ReviewRouter');
 const toursRouter = require('./Routes/TourRouter');
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'Views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(helmet());
 
 app.use(express.json({ limit: '10kb' }));
-app.use(express.static(`${__dirname}/public`));
 
 const limiter = rateLimit({
     max: 100,
@@ -31,9 +35,23 @@ app.use(xss());
 
 app.use(
     hpp({
-        whitelist: ['duration', 'price', 'maxGroupSize', 'difficulty', 'ratingsAverage', 'ratingsQuantity'],
+        whitelist: [
+            'duration',
+            'price',
+            'maxGroupSize',
+            'difficulty',
+            'ratingsAverage',
+            'ratingsQuantity',
+        ],
     })
 );
+
+app.get('/', (req, res, next) => {
+    res.status(200).render('base', {
+        tour: 'The Forest Hiker',
+        user: 'Kushagra',
+    });
+});
 
 app.use('/api/v1/tours', toursRouter);
 
