@@ -168,14 +168,66 @@ exports.toursWithin = catchAsync(async (req, res, next) => {
     const [lat, lng] = latlng.split(',');
     const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
     if (!radius) {
-        next(new AppError('Provide radius unit within miles(mi) or kilometers(km) and distance in number!', 400));
+        next(
+            new AppError(
+                'Provide radius unit within miles(mi) or kilometers(km) and distance in number!',
+                400
+            )
+        );
     }
-    if ((!lat, !lng)) {
-        next(new AppError('Provide a valid lattitue and longitude in lat,lng format', 400));
+    if (!lat || !lng) {
+        next(
+            new AppError(
+                'Provide a valid lattitue and longitude in lat,lng format',
+                400
+            )
+        );
     }
-    const tours = await Tour.find({ startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } } }).select(
-        'name'
-    );
+    const tours = await Tour.find({
+        startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+    }).select('name');
+    res.status(200).json({
+        status: 'success',
+        length: tours.length,
+        data: {
+            tours,
+        },
+    });
+});
+
+exports.getDistance = catchAsync(async (req, res, next) => {
+    const { latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');
+
+    if (!lat || !lng) {
+        next(
+            new AppError(
+                'Provide a valid lattitue and longitude in lat,lng format',
+                400
+            )
+        );
+    }
+
+    const multVar = unit === 'mi' ? 0.000621371 : 0.001;
+
+    const tours = await Tour.aggregate([
+        {
+            $geoNear: {
+                near: {
+                    type: 'Point',
+                    coordinates: [lng * 1, lat * 1],
+                },
+                distanceField: 'distance',
+                distanceMultiplier: multVar,
+            },
+        },
+        {
+            $project: {
+                distance: 1,
+                name: 1,
+            },
+        },
+    ]);
     res.status(200).json({
         status: 'success',
         length: tours.length,

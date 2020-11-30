@@ -115,7 +115,9 @@ toursSchema.virtual('durationWeeks').get(function () {
     if (gap < 0.2 || gapAlter < 0.2) {
         return `About ${parseInt(this.duration / 7)} week`;
     }
-    return `${parseInt(this.duration / 7)} week ${parseInt(gapAlter * 7 + 0.01)} days`;
+    return `${parseInt(
+        this.duration / 7
+    )} week ${parseInt(gapAlter * 7 + 0.01)} days`;
 });
 
 toursSchema.virtual('reviews', {
@@ -166,10 +168,10 @@ toursSchema.pre(/^find/, function (next) {
     next();
 });
 
-toursSchema.pre('aggregate', function (next) {
-    this.pipeline().unshift({ $match: { vipTour: { $ne: true } } });
-    next();
-});
+// toursSchema.pre('aggregate', function (next) {
+//     this.pipeline().unshift({ $match: { vipTour: { $ne: true } } });
+//     next();
+// });
 
 const Tour = mongoose.model('Tour', toursSchema);
 
