@@ -1,15 +1,15 @@
 const app = require('./app');
-const dotenv = require('dotenv'); 
+const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 dotenv.config({ path: './config.env' });
-process.on('uncaughtException', (err) => { 
+process.on('uncaughtException', (err) => {
     console.log(err.name, err.message);
     process.exit(1);
 });
 
 const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
 
-mongoose 
+mongoose
     .connect(DB, {
         useNewUrlParser: true,
         useCreateIndex: true,
@@ -24,7 +24,7 @@ mongoose
         process.exit(1);
     });
 
-const port = process.env.PORT || 3000; 
+const port = process.env.PORT || 3000;
 const host = '127.0.0.1';
 
 const server = app.listen(port, host, () => {

@@ -25,12 +25,18 @@ exports.deleteOne = (Model) =>
 exports.updateOne = (Model) =>
     catchAsync(async (req, res, next) => {
         // try {
-        const docUpdater = await Model.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true,
-        });
+        const docUpdater = await Model.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
         if (!docUpdater) {
-            return next(new AppError(`No document find for id ${req.params.id}`, 404));
+            return next(
+                new AppError(`No document find for id ${req.params.id}`, 404)
+            );
         }
         res.status(200).json({
             status: 'Success',
@@ -87,7 +93,11 @@ exports.createOne = (Model) =>
 exports.getOne = (Model, populate) =>
     catchAsync(async (req, res, next) => {
         let query = await Model.findById(req.params.id);
-        if (populate) query = query.populate(populate);
+        if (populate) {
+            query = await query.populate({
+                path: populate,
+            });
+        }
         // try {
         const doc = await query;
         // .populated({
@@ -95,7 +105,9 @@ exports.getOne = (Model, populate) =>
         //     select: '-__v -lastPasswordChange',
         // });
         if (!doc) {
-            return next(new AppError(`No doc find for id ${req.params.id}`, 404));
+            return next(
+                new AppError(`No doc find for id ${req.params.id}`, 404)
+            );
         }
         res.status(200).json({
             status: 'Success',
@@ -141,7 +153,11 @@ exports.getAll = (Model) =>
 
         //let query = await Tour.find(JSON.parse(reqQuery)); //Build Query
 
-        const features = new APIFeatures(Model.find(filter), req.query).filter().sort().limitFields().pagination();
+        const features = new APIFeatures(Model.find(filter), req.query)
+            .filter()
+            .sort()
+            .limitFields()
+            .pagination();
         const doc = await features.query; //Operate Query
         res.status(200).json({
             status: 'Success',

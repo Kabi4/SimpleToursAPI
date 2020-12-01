@@ -30,6 +30,13 @@ const reviewSchema = new mongoose.Schema({
 
 reviewSchema.index({ user: 1, tour: 1 }, { unique: true });
 
+reviewSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'user',
+        select: '-__v -lastPasswordChange',
+    });
+    next();
+});
 reviewSchema.static.calcAverageRating = async function (tourId) {
     const stats = await this.aggregate([
         {
@@ -46,9 +53,15 @@ reviewSchema.static.calcAverageRating = async function (tourId) {
         },
     ]);
     if (stats[0]) {
-        await Tour.findByIdAndUpdate({ ratingsAverage: stats[0].nRating, ratingsQuantity: stats[0].averageRating });
+        await Tour.findByIdAndUpdate({
+            ratingsAverage: stats[0].nRating,
+            ratingsQuantity: stats[0].averageRating,
+        });
     } else {
-        await Tour.findByIdAndUpdate({ ratingsAverage: 4.5, ratingsQuantity: 0 });
+        await Tour.findByIdAndUpdate({
+            ratingsAverage: 4.5,
+            ratingsQuantity: 0,
+        });
     }
 };
 

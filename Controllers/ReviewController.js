@@ -38,4 +38,4 @@ exports.postAReview = factory.createOne(Review);
 
 exports.deleteReveiw = factory.deleteOne(Review);
 
-exports.getAReview = factory.getOne(Review);
+exports.getAReview = factory.getOne(Review, 'user');

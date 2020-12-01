@@ -12,6 +12,7 @@ const usersRouter = require('./Routes/UserRouter');
 const AppError = require('./Utils/AppError');
 const reviewRouter = require('./Routes/ReviewRouter');
 const toursRouter = require('./Routes/TourRouter');
+const viewRouter = require('./Routes/viewRouter');
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'Views'));
@@ -46,12 +47,7 @@ app.use(
     })
 );
 
-app.get('/', (req, res, next) => {
-    res.status(200).render('base', {
-        tour: 'The Forest Hiker',
-        user: 'Kushagra',
-    });
-});
+app.use('/', viewRouter);
 
 app.use('/api/v1/tours', toursRouter);
 

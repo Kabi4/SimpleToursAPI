@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         validate: [validator.isEmail, 'Please provide a valid email'],
     },
-    photoUrl: {
+    photo: {
         type: String,
         // required: [true, 'You must have a photo'],
     },
@@ -65,7 +65,10 @@ userSchema.pre('save', function (next) {
     next();
 });
 
-userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
+userSchema.methods.correctPassword = async function (
+    candidatePassword,
+    userPassword
+) {
     const hashed = await bcrypt.compare(candidatePassword, userPassword);
     return hashed;
 };
@@ -79,7 +82,10 @@ userSchema.methods.isChangedPass = async function (tokenExpiryTime) {
 
 userSchema.methods.gernateResetToken = function () {
     const resetToken = crypto.randomBytes(32).toString('hex');
-    this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    this.resetPasswordToken = crypto
+        .createHash('sha256')
+        .update(resetToken)
+        .digest('hex');
     this.resetTokenExpires = Date.now() + 10 * 60 * 100;
     return resetToken;
 };
