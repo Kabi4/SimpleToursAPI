@@ -4,7 +4,6 @@ const AppError = require('./../Utils/AppError');
 
 exports.getOverView = catchAsync(async (req, res, next) => {
     const tours = await Tour.find();
-    console.log(tours);
     res.status(200).render('overview', {
         title: 'All Tours',
         tours: tours,
@@ -24,3 +23,9 @@ exports.getTour = catchAsync(async (req, res, next) => {
         tour,
     });
 });
+
+exports.loginform = (req, res) => {
+    res.status(200).render('login', {
+        title: 'Login Your Account',
+    });
+};

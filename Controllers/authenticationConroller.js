@@ -16,7 +16,14 @@ const sendToken = catchAsync(async (user, statusCode, res) => {
     const token = await signToken(user._id);
     user.password = undefined;
     const cookieOptions = {
-        expires: new Date(Date.now() + 60 * 60 * 24 * 1000 * process.env.JWT_EXPIRES_IN.replace('d', '')),
+        expires: new Date(
+            Date.now() +
+                60 *
+                    60 *
+                    24 *
+                    1000 *
+                    process.env.JWT_EXPIRES_IN.replace('d', '')
+        ),
         httpOnly: true,
     };
     if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
@@ -57,14 +64,23 @@ exports.login = catchAsync(async (req, res, next) => {
 
 exports.verifyToken = catchAsync(async (req, res, next) => {
     let token;
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    ) {
         token = req.headers.authorization.replace('Bearer ', '');
+    }
+    if (!token && req.cookies.jwt) {
+        token = req.cookies.jwt;
     }
     if (!token) {
         return next('Invalid You are not logged in please login', 401);
     }
 
-    const decodedData = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    const decodedData = await promisify(jwt.verify)(
+        token,
+        process.env.JWT_SECRET
+    );
     const ConsumerUser = await User.findById(decodedData.id);
 
     if (!ConsumerUser) {
@@ -80,12 +96,39 @@ exports.verifyToken = catchAsync(async (req, res, next) => {
     next();
 });
 
+exports.isAutheticated = catchAsync(async (req, res, next) => {
+    if (req.cookies.jwt) {
+        const decodedData = await promisify(jwt.verify)(
+            req.cookies.jwt,
+            process.env.JWT_SECRET
+        );
+        const ConsumerUser = await User.findById(decodedData.id);
+
+        if (!ConsumerUser) {
+            return next('User Deleted! InValid Token', 401);
+        }
+
+        if (await ConsumerUser.isChangedPass(decodedData.iat)) {
+            return next('Token Expired!', 401);
+        }
+        res.locals.user = ConsumerUser;
+        next();
+    } else {
+        return next('Invalid You are not logged in please login', 401);
+    }
+});
+
 exports.verificationAdmin = (...args) => {
     return (req, res, next) => {
         const role = req.user.role;
         const index = args.find((ele) => ele === role);
         if (index === -1 || index === undefined) {
-            return next(new AppError('You dont have permission to make this action', 403));
+            return next(
+                new AppError(
+                    'You dont have permission to make this action',
+                    403
+                )
+            );
         } else {
             next();
         }
@@ -100,7 +143,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     const resetToken = user.gernateResetToken();
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetpassword/${resetToken}`;
+    const resetUrl = `${req.protocol}://${req.get(
+        'host'
+    )}/api/v1/users/resetpassword/${resetToken}`;
     console.log(resetUrl);
     const message = `Here is your link to reset you password ${resetUrl} valid for 10 mins\nif you haven't please Ignore`;
     try {
@@ -121,8 +166,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     });
 });
 exports.resetPassword = catchAsync(async (req, res, next) => {
-    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
-    const user = await User.findOne({ resetPasswordToken: hashedToken, resetTokenExpires: { $gt: Date.now() } });
+    const hashedToken = crypto
+        .createHash('sha256')
+        .update(req.params.token)
+        .digest('hex');
+    const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        resetTokenExpires: { $gt: Date.now() },
+    });
     if (!user) {
         return next(new AppError('Token is invalid or expired!', 400));
     }
@@ -141,7 +192,12 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
         return next(new AppError("Invlaid ID recevied can't find a user", 404));
     }
     if (!(await user.correctPassword(req.body.password, user.password))) {
-        return next(new AppError('Incorrect password or userid Authentication failed', 401));
+        return next(
+            new AppError(
+                'Incorrect password or userid Authentication failed',
+                401
+            )
+        );
     }
     user.password = req.body.newPassword;
     user.confirmPassword = req.body.confirmPassword;
