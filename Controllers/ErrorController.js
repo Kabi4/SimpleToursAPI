@@ -1,25 +1,43 @@
 const AppError = require('./../Utils/AppError');
 
-const sendDevError = (err, res) => {
-    res.status(err.statusCode).json({
-        status: err.status,
-        message: err.message || 'Internal Server error :(',
-        error: err,
-        stack: err.stack,
-    });
-};
-
-const sendProdError = (err, res) => {
-    if (err.isOperational) {
+const sendDevError = (err, req, res) => {
+    if (req.originalUrl.startsWith('/api')) {
         res.status(err.statusCode).json({
             status: err.status,
             message: err.message || 'Internal Server error :(',
+            error: err,
+            stack: err.stack,
         });
     } else {
-        console.log('Error');
-        res.status(500).json({
+        res.status(err.statusCode).render('error', {
+            title: 'ERROR',
+            msg: err.message,
+        });
+    }
+};
+
+const sendProdError = (err, req, res) => {
+    if (req.originalUrl.startsWith('/api')) {
+        if (err.isOperational) {
+            return res.status(err.statusCode).json({
+                status: err.status,
+                message: err.message || 'Internal Server error :(',
+            });
+        }
+        return res.status(500).json({
             status: 'error',
             message: 'Something went wrong',
+        });
+    } else {
+        if (err.isOperational) {
+            return res.status(err.statusCode).render('error', {
+                title: 'ERROR',
+                msg: err.message || 'Internal Server error :(',
+            });
+        }
+        return res.status(err.statusCode).render('error', {
+            title: 'ERROR',
+            msg: 'Something went wrong! Try again later',
         });
     }
 };
@@ -53,15 +71,17 @@ const ErrorControler = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
     if (process.env.NODE_ENV == 'development') {
-        sendDevError(err, res);
+        sendDevError(err, req, res);
     } else {
         let error = { ...err };
         if (error.name === 'CastError') error = handlerCastError(error);
         if (error.code === 11000) error = handleDuplicateField(error);
-        if (error.name === 'ValidationError') error = handleValidationError(error);
+        if (error.name === 'ValidationError')
+            error = handleValidationError(error);
         if (error.name === 'JsonWebTokenError') error = handlerJWTERROR(error);
-        if (error.name === 'TokenExpiredError') error = handlerExpiredError(error);
-        sendProdError(error, res);
+        if (error.name === 'TokenExpiredError')
+            error = handlerExpiredError(error);
+        sendProdError(error, req, res);
     }
     // res.status(err.statusCode).json({
     //     status: err.status,

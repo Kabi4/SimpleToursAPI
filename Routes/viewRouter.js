@@ -10,11 +10,13 @@ const router = express.Router();
 //     });
 // });
 
-// router.use(authController.isAutheticated);
+router.use(authController.isAutheticated);
 
 router.get('/', viewsController.getOverView);
 
-router.get('/tour/:slug', viewsController.getTour);
+router.get('/tour/:slug', authController.verifyToken, viewsController.getTour);
+
+router.get('/me', authController.verifyToken, viewsController.getMe);
 
 router.route('/login').get(viewsController.loginform);
 

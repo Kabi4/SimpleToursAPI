@@ -1,5 +1,9 @@
 const express = require('express');
-const { getAllUsers, updateUser, deleteUser } = require('../Controllers/userController');
+const {
+    getAllUsers,
+    updateUser,
+    deleteUser,
+} = require('../Controllers/userController');
 
 const router = express.Router();
 const {
@@ -9,10 +13,12 @@ const {
     forgotPassword,
     resetPassword,
     updatePassword,
+    logout,
 } = require('../Controllers/authenticationConroller');
 router.route('/signup').post(signup);
 
 router.route('/login').post(login);
+router.route('/logout').get(logout);
 router.route('/forgotpassword').post(forgotPassword);
 
 router.route('/resetpassword/:token').patch(resetPassword);

@@ -74,9 +74,10 @@ exports.verifyToken = catchAsync(async (req, res, next) => {
         token = req.cookies.jwt;
     }
     if (!token) {
-        return next('Invalid You are not logged in please login', 401);
+        return next(new AppError('You are not logged in please login', 401));
     }
-
+    console.log('READING TOKEN');
+    console.log(token, 'token');
     const decodedData = await promisify(jwt.verify)(
         token,
         process.env.JWT_SECRET
@@ -84,20 +85,20 @@ exports.verifyToken = catchAsync(async (req, res, next) => {
     const ConsumerUser = await User.findById(decodedData.id);
 
     if (!ConsumerUser) {
-        return next('User Deleted! InValid Token', 401);
+        return next(new AppError('User Deleted! InValid Token', 401));
     }
 
     if (await ConsumerUser.isChangedPass(decodedData.iat)) {
-        return next('Token Expired!', 401);
+        return next(new AppError('Token Expired!', 401));
     }
 
     req.user = ConsumerUser;
-
+    res.locals.user = ConsumerUser;
     next();
 });
 
-exports.isAutheticated = catchAsync(async (req, res, next) => {
-    if (req.cookies.jwt) {
+exports.isAutheticated = async (req, res, next) => {
+    try {
         const decodedData = await promisify(jwt.verify)(
             req.cookies.jwt,
             process.env.JWT_SECRET
@@ -105,18 +106,18 @@ exports.isAutheticated = catchAsync(async (req, res, next) => {
         const ConsumerUser = await User.findById(decodedData.id);
 
         if (!ConsumerUser) {
-            return next('User Deleted! InValid Token', 401);
+            return next();
         }
 
         if (await ConsumerUser.isChangedPass(decodedData.iat)) {
-            return next('Token Expired!', 401);
+            return next();
         }
         res.locals.user = ConsumerUser;
         next();
-    } else {
-        return next('Invalid You are not logged in please login', 401);
+    } catch (error) {
+        next();
     }
-});
+};
 
 exports.verificationAdmin = (...args) => {
     return (req, res, next) => {
@@ -184,6 +185,17 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     await user.save();
 
     sendToken(user, 201, res);
+});
+
+exports.logout = catchAsync(async (req, res) => {
+    res.cookie('jwt', 'loggedout', {
+        expires: new Date(Date.now() + 10000),
+        httpOnly: true,
+    });
+    res.status(200).json({
+        status: 'success',
+        token: null,
+    });
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {

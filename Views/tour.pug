@@ -8,8 +8,8 @@ extends base
 //-     //- meta(http-equiv='Content-Security-Policy',content=`default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *`)
 //-     //- meta(http-equiv='Content-Security-Policy',content=`default-src * 'unsafe-inline' 'unsafe-eval' 'self'; script-src * 'unsafe-inline' 'unsafe-eval' blob:; img-src * 'self' data: blob:;`)
 //-     meta(http-equiv='Content-Security-Policy',content=`default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;`)
-block append head
-    script(src="/JS/mapBox.js")
+//- block append head
+//-     script(src="/JS/mapBox.js")
 
 mixin overviewBox (description,val,icon)
     .overview-box__detail
@@ -89,8 +89,8 @@ block content
         each photo,index in tour.images
             .picture-box
                 img.picture-box__img(class=`picture-box__img--${i+1}` src=`/img/tours/${photo}`, alt=`${tour.name} ${i+1}`)
-    section.section-map
-        #map(data-locations=`${JSON.stringify(tour.locations)}`)
+    //- section.section-map
+    //-     #map(data-locations=`${JSON.stringify(tour.locations)}`)
     section.section-reviews
         .reviews
             each review in tour.reviews

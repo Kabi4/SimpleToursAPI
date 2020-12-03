@@ -29,3 +29,9 @@ exports.loginform = (req, res) => {
         title: 'Login Your Account',
     });
 };
+
+exports.getMe = (req, res) => {
+    res.status(200).render('user', {
+        title: 'YOUR PROFILE',
+    });
+};
