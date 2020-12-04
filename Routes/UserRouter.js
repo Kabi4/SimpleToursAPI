@@ -3,6 +3,8 @@ const {
     getAllUsers,
     updateUser,
     deleteUser,
+    resizeUserPhoto,
+    updateProfilePhoto,
 } = require('../Controllers/userController');
 
 const router = express.Router();
@@ -27,7 +29,9 @@ router.use(verifyToken);
 
 router.route('/deleteUser').delete(deleteUser);
 
-router.route('/updateUser').patch(updateUser);
+router
+    .route('/updateUser')
+    .patch(updateProfilePhoto, resizeUserPhoto, updateUser);
 
 router.route('/updatepassword').patch(updatePassword);
 

@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
     },
     photo: {
         type: String,
+        default: 'default.jpg',
         // required: [true, 'You must have a photo'],
     },
     password: {

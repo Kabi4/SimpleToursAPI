@@ -76,8 +76,7 @@ exports.verifyToken = catchAsync(async (req, res, next) => {
     if (!token) {
         return next(new AppError('You are not logged in please login', 401));
     }
-    console.log('READING TOKEN');
-    console.log(token, 'token');
+
     const decodedData = await promisify(jwt.verify)(
         token,
         process.env.JWT_SECRET
