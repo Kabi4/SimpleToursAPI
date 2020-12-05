@@ -24,14 +24,12 @@ router
 
 //tours-within?distance=233&center=-40,-45&unit-mi
 router.route('/distance/:latlng/unit/:unit').get(tourController.getDistance);
-router
-    .route('/')
-    .get(verifyToken, tourController.getAllTour)
-    .post(
-        verifyToken,
-        verificationAdmin('admin', 'lead-guide'),
-        tourController.createNewTour
-    );
+router.route('/').get(verifyToken, tourController.getAllTour).post(
+    verifyToken,
+    verificationAdmin('admin', 'lead-guide'),
+
+    tourController.createNewTour
+);
 // router.route('/:tourid/review').post(verifyToken, reviewController.postAReview);
 router
     .route('/:id')
@@ -39,6 +37,8 @@ router
     .patch(
         verifyToken,
         verificationAdmin('admin', 'lead-guide'),
+        tourController.uploadTourImages,
+        tourController.resizeImages,
         tourController.updateATour
     )
     .delete(

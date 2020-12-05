@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('./../Models/userModel');
 const catchAsync = require('../Utils/catchAsync');
 const AppError = require('../Utils/AppError');
-const sendEmail = require('../Utils/email');
+const { Email } = require('../Utils/email');
 const { promisify } = require('util');
 const crypto = require('crypto');
 
@@ -44,7 +44,10 @@ exports.signup = catchAsync(async (req, res, next) => {
         password: req.body.password,
         confirmPassword: req.body.confirmPassword,
     });
-
+    await new Email(
+        newUser,
+        `${req.protocol}://${req.get('host')}/me`
+    ).sendWelcome();
     sendToken(newUser, 201, res);
 });
 
@@ -149,11 +152,11 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     console.log(resetUrl);
     const message = `Here is your link to reset you password ${resetUrl} valid for 10 mins\nif you haven't please Ignore`;
     try {
-        await sendEmail({
-            email: user.email,
-            subject: '<no:reply>Password Reset',
-            message,
-        });
+        // await sendEmail({
+        //     email: user.email,
+        //     subject: '<no:reply>Password Reset',
+        //     message,
+        // });
     } catch (err) {
         user.resetPasswordToken = undefined;
         user.resetTokenExpires = undefined;
